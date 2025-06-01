@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>الصفحة الرئيسية</title>
+    <link rel="stylesheet" href="Home.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+</head>
+<body>
+    <main class="page-container">
+        <!-- ترويسة الصفحة -->
+        <header class="main-header">
+            <div class="header-content">
+                <div class="header-top">
+                    <div class="hospital-logo">
+                        <img src="/Icons/hospital-logo.png" alt="شعار المستشفى">
+                        <img src="/Icons/mg.png" alt="شعار المجال العربي" class="mg-logo">
+                    </div>
+                    <h1>الصفحة الرئيسية</h1>
+                    <button onclick="window.history.back()" class="back-button">
+                        <span>رجوع</span>
+                        <i class="fas fa-chevron-right"></i>
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <div class="home-content">
+            <div class="home-header">
+                <h1>لوحة التحكم الرئيسية</h1>
+                <p>اختر إحدى الخدمات التالية للبدء</p>
+            </div>
+
+            <div class="services-grid">
+                <!-- إدارة الموظفين -->
+                <div class="service-card">
+                    <div class="service-icon blue">
+                        <img src="/icons/users.png" alt="إدارة الموظفين">
+                    </div>
+                    <div class="service-content">
+                        <h2>إدارة الموظفين</h2>
+                        <p>إدارة بيانات الموظفين</p>
+                        <a href="/Meal Eligibility/Meal Eligibility.html" class="service-button blue">فتح</a>
+                    </div>
+                </div>
+
+                <!-- لوحة المعلومات -->
+                <div class="service-card">
+                    <div class="service-icon orange">
+                        <img src="/icons/chart.png" alt="لوحة المعلومات">
+                    </div>
+                    <div class="service-content">
+                        <h2>لوحة المعلومات</h2>
+                        <p>إحصائيات الوجبات اليومية</p>
+                        <a href="/Dashboard/Dashboard.html" class="service-button orange">فتح</a>
+                    </div>
+                </div>
+
+                <!-- قارئ الباركود -->
+                <div class="service-card">
+                    <div class="service-icon green">
+                        <img src="/icons/Reader.svg" alt="قارئ الباركود">
+                    </div>
+                    <div class="service-content">
+                        <h2>قارئ الباركود</h2>
+                        <p>مسح وطباعة الباركود</p>
+                        <a href="/barcode/index.html" class="service-button green">فتح</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+</body>
+</html> 

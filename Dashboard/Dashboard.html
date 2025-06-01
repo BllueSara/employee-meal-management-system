@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <!-- معلومات الصفحة الأساسية -->
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>لوحة المعلومات</title>
+
+  <!-- المكتبات الخارجية -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link rel="stylesheet" href="Dashboard.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+  <script src="Dashboard.js" defer></script>
+</head>
+<body>
+  <!-- الحاوية الرئيسية -->
+  <main class="page-container">
+    <!-- ترويسة الصفحة -->
+    <header class="main-header">
+      <div class="header-content">
+        <div class="header-top">
+          <div class="hospital-logo">
+            <img src="/Icons/hospital-logo.png" alt="شعار المستشفى">
+            <img src="/Icons/mg.png" alt="شعار المجال العربي" class="mg-logo">
+          </div>
+          <h1>لوحة المعلومات</h1>
+          <button onclick="window.history.back()" class="back-button">
+            <span>رجوع</span>
+            <i class="fas fa-chevron-right"></i>
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <!-- بطاقات الإحصائيات -->
+    <div class="stats-grid">
+      <!-- بطاقة إحصائيات العشاء -->
+      <div class="stat-card">
+        <div class="stat-header">
+          <h3>إجمالي دخول العشاء اليوم</h3>
+          <div class="icon-circle purple">
+            <img src="/icons/Moon.svg" alt="عشاء" width="24" height="24">
+          </div>
+        </div>
+        <div class="stat-content">
+          <div class="stat-main">
+            <p class="stat-number">0</p>
+            <p class="monthly-stat">إجمالي الشهر: 0</p>
+            <canvas id="miniEveningChart" height="40"></canvas>
+          </div>
+        </div>
+      </div>
+
+      <!-- بطاقة إحصائيات الغداء -->
+      <div class="stat-card">
+        <div class="stat-header">
+          <h3>إجمالي دخول الغداء اليوم</h3>
+          <div class="icon-circle blue">
+            <img src="/icons/Sun.svg" alt="غداء" width="24" height="24">
+          </div>
+        </div>
+        <div class="stat-content">
+          <div class="stat-main">
+            <p class="stat-number">0</p>
+            <p class="monthly-stat">إجمالي الشهر: 0</p>
+            <canvas id="miniLunchChart" height="40"></canvas>
+          </div>
+        </div>
+      </div>
+
+      <!-- بطاقة إحصائيات الإفطار -->
+      <div class="stat-card">
+        <div class="stat-header">
+          <h3>إجمالي دخول الإفطار اليوم</h3>
+          <div class="icon-circle green">
+            <img src="/icons/Sun2.svg" alt="إفطار" width="24" height="24">
+          </div>
+        </div>
+        <div class="stat-content">
+          <div class="stat-main">
+            <p class="stat-number">0</p>
+            <p class="monthly-stat">إجمالي الشهر: 0</p>
+            <canvas id="miniBreakfastChart" height="40"></canvas>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- تفاصيل الدخول -->
+    <div class="details-grid">
+      <!-- تفاصيل العشاء -->
+      <div class="detail-card">
+        <div class="detail-header">
+          <h3>تفاصيل دخول العشاء</h3>
+         
+        </div>
+        <canvas id="eveningChart" height="80"></canvas>
+      </div>
+
+      <!-- تفاصيل الغداء -->
+      <div class="detail-card">
+        <div class="detail-header">
+          <h3>تفاصيل دخول الغداء</h3>
+       
+        </div>
+        <canvas id="lunchChart" height="80"></canvas>
+      </div>
+
+      <!-- تفاصيل الإفطار -->
+      <div class="detail-card">
+        <div class="detail-header">
+          <h3>تفاصيل دخول الإفطار</h3>
+        
+        </div>
+        <canvas id="breakfastChart" height="80"></canvas>
+      </div>
+    </div>
+
+    <!-- جدول سجل الدخول -->
+    <div class="table-container">
+      <!-- رأس الجدول مع أزرار التحكم -->
+      <div class="table-header">
+        <h2>سجل دخول الموظفين اليوم</h2>
+        <div class="table-actions">
+          <!-- قائمة التصفية -->
+          <div class="filter-wrapper">
+            <button id="filterToggleBtn" class="btn-filter">
+              <img src="/icons/filter.png" alt="تصفية" width="20" height="20">
+              <span>تصفية</span>
+            </button>
+
+            <div id="filterDropdown">
+              <ul>
+                <li><button class="filter-option" data-value="most">أكثر تناولاً</button></li>
+                <li><button class="filter-option" data-value="least">أقل تناولاً</button></li>
+                <li><button class="filter-option" data-value="all">عرض الكل</button></li>
+              </ul>
+            </div>
+          </div>
+
+          <!-- زر التصدير -->
+          <button class="btn-export">
+            <img src="/icons/download.png" alt="تصدير" width="20" height="20">
+            <span>تصدير</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- جدول البيانات -->
+      <table>
+        <thead>
+          <tr>
+            <th>اسم الموظف</th>
+            <th>القسم</th>
+            <th>الوجبة</th>
+            <th>الوقت</th>
+            <th>الفترة</th>
+          </tr>
+        </thead>
+        <tbody id="employeeTableBody"></tbody>
+      </table>
+
+      <!-- تذييل الجدول مع أزرار التنقل -->
+      <div class="table-footer">
+        <span>عرض 1-10 من 50</span>
+        <div class="pagination">
+          <button class="btn-prev">السابق</button>
+          <button class="btn-next" style="background-color: #3B82F6; color: white;">التالي</button>
+        </div>
+      </div>
+    </div>
+  </main>
+</body>
+</html>

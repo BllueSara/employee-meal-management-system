@@ -1,0 +1,211 @@
+/* إعدادات عامة */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: system-ui, -apple-system, sans-serif;
+}
+
+body {
+    background-color: #f8fafc;
+    min-height: 100vh;
+}
+
+/* حاوية الصفحة */
+.page-container {
+    padding: 2rem;
+}
+
+/* ترويسة الصفحة */
+.main-header {
+    margin-bottom: 3rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid #e2e8f0;
+}
+
+.header-content {
+    width: 100%;
+}
+
+.header-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    position: relative;
+}
+
+.header-top h1 {
+    color: #1e293b;
+    font-size: 1.75rem;
+    margin: 0;
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+/* زر الرجوع */
+.back-button {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 1rem;
+    border: 1px solid #e2e8f0;
+    background-color: white;
+    border-radius: 0.5rem;
+    color: #64748b;
+    cursor: pointer;
+    font-size: 0.875rem;
+    transition: all 0.2s ease;
+    margin-right: auto;
+    z-index: 1;
+}
+
+.back-button:hover {
+    background-color: #f8fafc;
+    border-color: #3b82f6;
+    color: #3b82f6;
+}
+
+/* شعار المستشفى */
+.hospital-logo {
+    width: 150px;
+    flex-shrink: 0;
+    z-index: 1;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.hospital-logo img {
+    width: 100%;
+    height: auto;
+}
+
+.hospital-logo .mg-logo {
+    width: 80px;
+}
+
+/* حاوية البطاقات */
+.container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 2rem;
+    padding: 2rem;
+    flex-wrap: wrap;
+}
+
+/* بطاقة الحالة */
+.status-card {
+    background: white;
+    border-radius: 1.5rem;
+    padding: 2.5rem;
+    text-align: center;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+    transition: transform 0.2s ease;
+    width: 350px;
+}
+
+.status-card:hover {
+    transform: translateY(-5px);
+}
+
+/* دائرة الأيقونة */
+.icon-circle {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    margin: 0 auto 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform 0.3s ease;
+}
+
+.icon-circle svg {
+    width: 50px;
+    height: 50px;
+}
+
+/* حالة النجاح */
+.success .icon-circle {
+    background-color: #f0fdf4;
+    color: #22c55e;
+}
+
+.success h2 {
+    color: #22c55e;
+}
+
+/* حالة الفشل */
+.error .icon-circle {
+    background-color: #fef2f2;
+    color: #ef4444;
+}
+
+.error h2 {
+    color: #ef4444;
+}
+
+/* حالة الانتظار */
+.waiting .icon-circle {
+    background-color: #fff7ed;
+    color: #f97316;
+}
+
+.waiting h2 {
+    color: #f97316;
+}
+
+/* النصوص */
+h2 {
+    font-size: 1.5rem;
+    margin-bottom: 1rem;
+    font-weight: 600;
+}
+
+p {
+    color: #64748b;
+    line-height: 1.5;
+    font-size: 1rem;
+}
+
+/* تجاوب الموقع */
+@media (max-width: 1200px) {
+    .container {
+        justify-content: center;
+    }
+    
+    .status-card {
+        width: calc(50% - 2rem);
+        min-width: 300px;
+    }
+}
+
+@media (max-width: 768px) {
+    .header-top {
+        flex-direction: column;
+        gap: 1rem;
+        align-items: center;
+    }
+
+    .header-top h1 {
+        position: static;
+        transform: none;
+        order: 2;
+    }
+
+    .hospital-logo {
+        width: 120px;
+        order: 1;
+    }
+
+    .back-button {
+        order: 3;
+        margin-right: 0;
+    }
+
+    .status-card {
+        width: 100%;
+    }
+} 

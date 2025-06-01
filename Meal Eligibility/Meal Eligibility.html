@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html dir="rtl" lang="ar">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>نظام إدارة الوجبات للموظفين</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="Meal Eligibility.css">
+</head>
+<body>
+    <div class="container">
+        <div class="main-header">
+            <div class="logo-container">
+                <img src="/Icons/hospital-logo.png" alt="شعار مستشفى الملك عبدالعزيز" class="hospital-logo">
+            </div>
+            <div class="header-content">
+                <div class="header-top">
+                    <h1>نظام إدارة الوجبات للموظفين</h1>
+                    <button class="back-button">
+                        <i class="fas fa-chevron-left"></i>
+                        رجوع
+                    </button>
+                </div>
+                <div class="header-actions">
+                    <button class="add-employee">
+                        <i class="fas fa-user-plus"></i>
+                        إضافة موظف
+                    </button>
+                    <div class="import-container">
+                        <input type="file" id="fileInput" accept=".xlsx, .xls" style="display: none;">
+                        <button class="import">
+                            <i class="fas fa-file-import"></i>
+                            استيراد من اكسل
+                        </button>
+                    </div>
+                    <div class="search-container">
+                        <input type="text" id="searchInput" placeholder="بحث باسم الموظف، رقم الموظف أو رقم الهوية">
+                        <i class="fas fa-search search-icon"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <table id="employeeTable">
+            <thead>
+                <tr>
+                    <th>رقم الموظف</th>
+                    <th>اسم الموظف</th>
+                    <th>القسم</th>
+                    <th>رقم الهوية</th>
+                    <th>الفترة</th>
+                    <th>الإجراءات</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- سيتم إضافة البيانات هنا عن طريق JavaScript -->
+            </tbody>
+        </table>
+        <div class="pagination">
+            <span>إجمالي النتائج: 5 موظفين</span>
+            <div class="pagination-controls">
+                <button class="prev">
+                    <i class="fas fa-chevron-right"></i>
+                    السابق
+                </button>
+                <span class="current-page">1</span>
+                <button class="next">
+                    التالي
+                    <i class="fas fa-chevron-left"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- نافذة إضافة موظف جديد -->
+    <div id="addEmployeeModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>إضافة موظف جديد</h2>
+                <button class="close-modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="addEmployeeForm">
+                    <div class="form-group">
+                        <label for="employeeId">رقم الموظف</label>
+                        <input type="text" id="employeeId" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="employeeName">اسم الموظف</label>
+                        <input type="text" id="employeeName" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="department">القسم</label>
+                        <input type="text" id="department" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="idNumber">رقم الهوية</label>
+                        <input type="text" id="idNumber" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="phoneNumber">رقم الجوال</label>
+                        <input type="text" id="phoneNumber" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="period">الفترة</label>
+                        <select id="period" required>
+                            <option value="صباحي">صباحي</option>
+                            <option value="مسائي">مسائي</option>
+                            <option value="غير محدد">غير محدد</option>
+                        </select>
+                    </div>
+                    <div class="form-actions">
+                        <button type="submit" class="btn-save">حفظ</button>
+                        <button type="button" class="btn-cancel">إلغاء</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- نافذة تعديل الموظف -->
+    <div id="editEmployeeModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>تعديل بيانات الموظف</h2>
+                <button class="close-modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="editEmployeeForm">
+                    <input type="hidden" id="editEmployeeId">
+                    <div class="form-group">
+                        <label for="editEmployeeName">اسم الموظف</label>
+                        <input type="text" id="editEmployeeName" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="editDepartment">القسم</label>
+                        <input type="text" id="editDepartment" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="editIdNumber">رقم الهوية</label>
+                        <input type="text" id="editIdNumber" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="editPhoneNumber">رقم الجوال</label>
+                        <input type="text" id="editPhoneNumber" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="editPeriod">الفترة</label>
+                        <select id="editPeriod" required>
+                            <option value="صباحي">صباحي</option>
+                            <option value="مسائي">مسائي</option>
+                            <option value="غير محدد">غير محدد</option>
+                        </select>
+                    </div>
+                    <div class="form-actions">
+                        <button type="submit" class="btn-save">حفظ التغييرات</button>
+                        <button type="button" class="btn-cancel">إلغاء</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- عنصر مخفي للباركود -->
+    <canvas id="barcodeCanvas" style="display: none;"></canvas>
+
+    <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <script src="Meal Eligibility.js"></script>
+</body>
+</html> 
