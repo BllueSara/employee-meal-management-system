@@ -248,7 +248,7 @@ app.get('/api/employees/:id/phone', (req, res) => {
         }
     );
 });
-
+// ✅ API لتسجيل الوجبات يدويًا
 app.post('/api/meals', (req, res) => {
     const { employee_id } = req.body;
     if (!employee_id) {
@@ -261,28 +261,30 @@ app.post('/api/meals', (req, res) => {
             return res.status(500).json({ error: 'فشل داخلي في السيرفر.' });
         }
 
-        // 1️⃣ جلب بيانات الموظف
         const getEmployeeSql = 'SELECT employee_id, shift FROM employees WHERE employee_id = ?';
         connection.query(getEmployeeSql, [employee_id], (err, employeeResults) => {
-            if (err) {
-                connection.release();
-                return res.status(500).json({ error: 'فشل في جلب بيانات الموظف.' });
-            }
+            if (err || employeeResults.length === 0) {
+                        // 1️⃣ جلب بيانات الموظف
 
-            if (employeeResults.length === 0) {
                 connection.release();
                 return res.status(404).json({ message: 'الموظف غير موجود.' });
             }
 
             const employee = employeeResults[0];
+            const now = new Date();
+            const hour = now.getHours();
+            const currentPeriod = (hour >= 8 && hour < 20) ? 'صباحي' : 'مسائي';
 
+            if (employee.shift !== currentPeriod) {
+                connection.release();
+                return res.status(400).json({ message: 'ليس وقتك الآن لتناول الوجبة.' });
+            }
             // 2️⃣ التحقق من آخر 24 ساعة
+
             const timeWindow = new Date(Date.now() - 24 * 60 * 60 * 1000);
             const countMealsSql = `
-                SELECT meal_type, meal_time
-                FROM meals 
+                SELECT meal_type FROM meals 
                 WHERE employee_id = ? AND meal_time >= ?
-                ORDER BY meal_time DESC
             `;
             connection.query(countMealsSql, [employee_id, timeWindow], (err, mealResults) => {
                 if (err) {
@@ -292,31 +294,24 @@ app.post('/api/meals', (req, res) => {
 
                 let nextMeal = '';
                 if (employee.shift === 'صباحي') {
-                    // الإفطار والعشاء فقط
-                    const eatenMeals = mealResults.map(r => r.meal_type);
-                    if (!eatenMeals.includes('إفطار')) {
-                        nextMeal = 'إفطار';
-                    } else if (!eatenMeals.includes('عشاء')) {
-                        nextMeal = 'عشاء';
-                    } else {
-                        connection.release();
-                        return res.status(400).json({ message: 'لقد استنفدت وجباتك لهذا اليوم (إفطار + عشاء).' });
-                    }
-                } else if (employee.shift === 'مسائي') {
-                    // الغداء فقط
                     const hasLunch = mealResults.some(r => r.meal_type === 'غداء');
                     if (!hasLunch) {
                         nextMeal = 'غداء';
                     } else {
                         connection.release();
-                        return res.status(400).json({ message: 'لقد استنفدت وجبة الغداء لهذا اليوم.' });
+                        return res.status(400).json({ message: 'لقد أخذت وجبة الغداء لهذا اليوم.' });
                     }
                 } else {
-                    connection.release();
-                    return res.status(400).json({ message: 'ليس وقتك الآن لتناول الوجبة.' });
+                    const eaten = mealResults.map(r => r.meal_type);
+                    if (!eaten.includes('إفطار')) nextMeal = 'إفطار';
+                    else if (!eaten.includes('عشاء')) nextMeal = 'عشاء';
+                    else {
+                        connection.release();
+                        return res.status(400).json({ message: 'لقد أخذت كل وجباتك لهذا اليوم (إفطار + عشاء).' });
+                    }
                 }
-
                 // 3️⃣ تسجيل الوجبة
+
                 const recordMealSql = `
                     INSERT INTO meals (employee_id, meal_type)
                     VALUES (?, ?)
@@ -327,6 +322,77 @@ app.post('/api/meals', (req, res) => {
                         return res.status(500).json({ error: 'فشل في تسجيل الوجبة.' });
                     }
                     res.json({ message: `تم تسجيل ${nextMeal} بنجاح.` });
+                });
+            });
+        });
+    });
+});
+
+
+// ✅ API لمسح الباركود
+app.post('/api/barcode-scans', (req, res) => {
+    const { barcode } = req.body;
+    if (!barcode) {
+        return res.status(400).json({ status: 'error', message: 'الباركود مفقود' });
+    }
+
+    const employee_id = barcode;
+
+    pool.getConnection((err, connection) => {
+        if (err) return res.status(500).json({ status: 'error', message: 'فشل الاتصال بقاعدة البيانات' });
+
+        const getEmployeeSql = 'SELECT employee_id, shift FROM employees WHERE employee_id = ?';
+        connection.query(getEmployeeSql, [employee_id], (err, employeeResults) => {
+            if (err || employeeResults.length === 0) {
+                connection.release();
+                return res.status(404).json({ status: 'error', message: 'الموظف غير موجود' });
+            }
+
+            const employee = employeeResults[0];
+            const now = new Date();
+            const hour = now.getHours();
+            const currentPeriod = (hour >= 8 && hour < 20) ? 'صباحي' : 'مسائي';
+
+            if (employee.shift !== currentPeriod) {
+                connection.release();
+                return res.json({ status: 'waiting', message: 'ليس وقتك الآن لتناول الوجبة' });
+            }
+
+            const timeWindow = new Date(Date.now() - 24 * 60 * 60 * 1000);
+            const countMealsSql = `
+                SELECT meal_type FROM meals 
+                WHERE employee_id = ? AND meal_time >= ?
+            `;
+            connection.query(countMealsSql, [employee_id, timeWindow], (err, mealResults) => {
+                if (err) {
+                    connection.release();
+                    return res.status(500).json({ status: 'error', message: 'خطأ في سجل الوجبات' });
+                }
+
+                let nextMeal = '';
+                if (employee.shift === 'صباحي') {
+                    const hasLunch = mealResults.some(r => r.meal_type === 'غداء');
+                    if (!hasLunch) nextMeal = 'غداء';
+                    else {
+                        connection.release();
+                        return res.json({ status: 'error', message: 'لقد أخذت وجبة الغداء لهذا اليوم' });
+                    }
+                } else {
+                    const eaten = mealResults.map(r => r.meal_type);
+                    if (!eaten.includes('إفطار')) nextMeal = 'إفطار';
+                    else if (!eaten.includes('عشاء')) nextMeal = 'عشاء';
+                    else {
+                        connection.release();
+                        return res.json({ status: 'error', message: 'لقد أخذت كل وجباتك لهذا اليوم (إفطار + عشاء)' });
+                    }
+                }
+
+                const insertSql = 'INSERT INTO meals (employee_id, meal_type) VALUES (?, ?)';
+                connection.query(insertSql, [employee_id, nextMeal], (err) => {
+                    connection.release();
+                    if (err) return res.status(500).json({ status: 'error', message: 'فشل في تسجيل الوجبة' });
+
+                    res.json({ status: 'success', message: `تم تسجيل ${nextMeal} بنجاح` });
                 });
             });
         });

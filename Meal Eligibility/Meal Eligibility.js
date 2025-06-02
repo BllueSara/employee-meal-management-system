@@ -582,3 +582,17 @@ function editEmployee(id) {
     };
     
 }
+if (window.WebSocket) {
+    const originalWebSocket = window.WebSocket;
+    window.WebSocket = function (url, protocols) {
+        const socket = new originalWebSocket(url, protocols);
+        socket.addEventListener('message', function (event) {
+            if (event.data === 'reload') {
+                console.log('🚫 منع إعادة تحميل الصفحة بسبب Live Server');
+                event.stopImmediatePropagation(); // منع التنفيذ
+                return;
+            }
+        });
+        return socket;
+    };
+}

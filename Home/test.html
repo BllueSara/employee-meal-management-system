@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <title>تجربة قراءة الباركود</title>
+    <style>
+        body { font-family: sans-serif; text-align: center; margin-top: 50px; background-color: #f8f9fa; }
+        input { padding: 10px; font-size: 16px; width: 250px; text-align: center; }
+        button { padding: 10px 20px; margin: 10px; font-size: 16px; }
+        .status-card {
+            margin-top: 30px;
+            padding: 20px;
+            border-radius: 10px;
+            width: 360px;
+            margin-left: auto;
+            margin-right: auto;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+        .success { background-color: #e6f4ea; color: #256029; border: 1px solid #a5d6a7; }
+        .waiting { background-color: #fff8e1; color: #8a6d3b; border: 1px solid #ffe082; }
+        .error { background-color: #fdecea; color: #a94442; border: 1px solid #f5c6cb; }
+
+        .icon-circle {
+            margin: 10px auto 15px;
+            width: 50px;
+            height: 50px;
+        }
+
+        .icon-circle svg {
+            width: 100%;
+            height: 100%;
+        }
+    </style>
+</head>
+<body>
+
+<h2>تجربة قراءة الباركود بدون جهاز</h2>
+
+<input type="text" id="barcodeInput" placeholder="أدخل رقم الموظف">
+<br>
+<button onclick="simulate('12345')">موظف صباحي (12345)</button>
+<button onclick="simulate('67890')">موظف مسائي (67890)</button>
+<button onclick="simulate('00000')">موظف غير موجود</button>
+
+<div id="resultCard"></div>
+
+<script>
+    const barcodeInput = document.getElementById('barcodeInput');
+    const resultCard = document.getElementById('resultCard');
+
+    window.onload = () => barcodeInput.focus();
+
+    function showCard(status, title, message) {
+        let cardHTML = '';
+        switch(status) {
+            case 'success':
+                cardHTML = `
+                    <div class="status-card success">
+                        <div class="icon-circle">
+                            <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M22 11.08V12C21.9988 14.1564 21.3005 16.2547 20.0093 17.9818C18.7182 19.709 16.9033 20.9725 14.8354 21.5839C12.7674 22.1953 10.5573 22.1219 8.53447 21.3746C6.51168 20.6273 4.78465 19.2461 3.61096 17.4371C2.43727 15.628 1.87979 13.4881 2.02168 11.3363C2.16356 9.18455 2.99721 7.13631 4.39828 5.49706C5.79935 3.85781 7.69279 2.71537 9.79619 2.24013C11.8996 1.7649 14.1003 1.98232 16.07 2.85999" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                <path d="M22 4L12 14.01L9 11.01" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                        </div>
+                        <h2>${title}</h2>
+                        <p>${message}</p>
+                    </div>
+                `;
+                break;
+            case 'waiting':
+                cardHTML = `
+                    <div class="status-card waiting">
+                        <div class="icon-circle">
+                            <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M12 6V12L16 14M12 2C6.48 2 2 6.48 2 12C2 17.52 6.48 22 12 22C17.52 22 22 17.52 22 12C22 6.48 17.52 2 12 2Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                        </div>
+                        <h2>${title}</h2>
+                        <p>${message}</p>
+                    </div>
+                `;
+                break;
+            case 'error':
+                cardHTML = `
+                    <div class="status-card error">
+                        <div class="icon-circle">
+                            <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                <path d="M15 9L9 15M9 9L15 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                        </div>
+                        <h2>${title}</h2>
+                        <p>${message}</p>
+                    </div>
+                `;
+                break;
+        }
+
+        resultCard.innerHTML = cardHTML;
+
+        setTimeout(() => resultCard.innerHTML = '', 3000);
+    }
+
+    async function handleBarcode(barcode) {
+        try {
+            const response = await fetch('http://localhost:3000/api/barcode-scans', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ barcode: barcode })
+            });
+            const data = await response.json();
+
+            if (data.status === 'success') {
+                showCard('success', '✅ تم تسجيل الوجبة', data.message || '');
+            } else if (data.status === 'waiting') {
+                showCard('waiting', '⏳ ليس وقتك الآن', data.message || '');
+            } else {
+                showCard('error', '❌ لم يتم قراءة الباركود', data.message || '');
+            }
+
+        } catch (error) {
+            console.error(error);
+            showCard('error', '❌ خطأ في الاتصال', 'حدثت مشكلة أثناء الاتصال بالخادم.');
+        }
+    }
+
+    function simulate(barcode) {
+        barcodeInput.value = barcode;
+        handleBarcode(barcode);
+    }
+
+    barcodeInput.addEventListener('keypress', function(event) {
+        if (event.key === 'Enter') {
+            const barcode = barcodeInput.value.trim();
+            if (barcode) handleBarcode(barcode);
+        }
+    });
+</script>
+
+</body>
+</html>
